@@ -19,6 +19,17 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Baixar feed via curl (fallback)
+        run: |
+          echo "Tentando baixar com curl..."
+          FEED_URL="https://www.bisturi.com.br/XMLData/feed-dinamize.xml"
+          # tenta 5x, timeout 60s por tentativa, user-agent de browser
+          curl --silent --show-error --fail --location \
+            --max-time 60 --retry 5 --retry-delay 5 \
+            -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115 Safari/537.36" \
+            "$FEED_URL" -o feed.xml || echo "curl falhou, node tentará fetch direto"
+          ls -l feed.xml || true
+          
       - name: Run transform script
         run: node transform.js
 
